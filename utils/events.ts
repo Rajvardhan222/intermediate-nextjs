@@ -5,7 +5,7 @@ import { events, rsvps } from '@/db/schema'
 import { delay } from './delay'
 import { memoize } from 'nextjs-better-unstable-cache'
 
-export const getEventsForDashboard = async (userId: string) => {
+export const getEventsForDashboard = memoize( async (userId: string) => {
     await delay()
   
     const data = await db.query.events.findMany({
@@ -24,4 +24,11 @@ export const getEventsForDashboard = async (userId: string) => {
     })
   
     return data ?? []
+},{
+    persist: true,
+    revalidateTags: (userId: string) => ['dashboard:events'],
+    suppressWarnings:true,
+    log : ['datacache','verbose','dedupe'],
+    logid :'dashboard-events'
 }
+)
